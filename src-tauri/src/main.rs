@@ -2,14 +2,15 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod ocr;
+mod status;
 
 use ocr::tauri::select_area;
+use status::tauri::display_status;
 
 fn main() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_window::init())
-        .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![select_area])
+        .manage(status::tauri::StatusWindow::default())
+        .invoke_handler(tauri::generate_handler![select_area, display_status])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

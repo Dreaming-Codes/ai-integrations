@@ -1,11 +1,40 @@
 <script lang="ts">
 	import { invoke } from '@tauri-apps/api';
+	import { popup } from '@skeletonlabs/skeleton';
+	import type { PopupSettings } from '@skeletonlabs/skeleton';
 
 	function startOCRTest() {
 		invoke('select_area').then((res) => {
 			console.log('Select area result: ', res);
 		});
 	}
+
+	function display_status(status: string) {
+		invoke('display_status', {
+			status
+		});
+	}
+
+	function test_success() {
+		display_status('success');
+	}
+
+	function test_loading() {
+		display_status('loading');
+	}
+
+	function test_other() {
+		display_status('other');
+	}
+
+	const popupTestStatus: PopupSettings = {
+		// Represents the type of event that opens/closed the popup
+		event: 'click',
+		// Matches the data-popup value on your popup element
+		target: 'popupTestStatus',
+		// Defines which side of your trigger the popup will appear
+		placement: 'top'
+	};
 </script>
 
 <div class="container h-full mx-auto flex justify-center items-center">
@@ -30,6 +59,14 @@
 			<button class="btn variant-filled" on:click={startOCRTest} rel="noreferrer">
 				TEST OCR
 			</button>
+			<button class="btn variant-filled" use:popup={popupTestStatus} rel="noreferrer">
+				TEST STATUS
+			</button>
+			<div class="card p-4 variant-filled-secondary" data-popup="popupTestStatus">
+				<button class="btn variant-filled" on:click={test_success}>Success</button>
+				<button class="btn variant-filled" on:click={test_loading}>Loading</button>
+				<button class="btn variant-filled" on:click={test_other}>Other</button>
+			</div>
 		</div>
 	</div>
 </div>
@@ -46,7 +83,7 @@
 
 	.img-bg {
 		@apply absolute z-[-1] rounded-full blur-[50px]
-			transition-all transform-gpu will-change-transform isolate;
+        transition-all transform-gpu will-change-transform isolate;
 		animation: pulse 5s cubic-bezier(0, 0, 0, 0.5) infinite, glow 5s linear infinite;
 	}
 

@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { emit } from '@tauri-apps/api/event';
 	import { EyeIcon } from 'lucide-svelte';
+	import { cssVarToRGBA } from '$lib';
 
 	let canvas: HTMLCanvasElement;
 	let context: CanvasRenderingContext2D;
@@ -14,14 +15,8 @@
 
 		// Set color options
 		context.lineWidth = 2;
-		context.strokeStyle = `rgb(${getComputedStyle(document.body)
-			.getPropertyValue('--color-primary-500')
-			.split(' ')
-			.join(',')})`;
-		context.fillStyle = `rgba(${getComputedStyle(document.body)
-			.getPropertyValue('--color-surface-500')
-			.split(' ')
-			.join(',')}, 0.3)`;
+		context.strokeStyle = cssVarToRGBA('--color-primary-500', 1);
+		context.fillStyle = cssVarToRGBA('--color-surface-500', 0.3);
 	});
 
 	let isDrawing = false;
@@ -85,9 +80,3 @@
 		<div>Press <kbd>Esc</kbd> to cancel</div>
 	</div>
 </div>
-
-<style>
-	:global(body) {
-		background-color: transparent !important;
-	}
-</style>

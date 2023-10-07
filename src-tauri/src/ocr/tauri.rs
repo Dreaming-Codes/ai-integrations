@@ -4,6 +4,7 @@ use serde_json::Value;
 use tauri::{Window, WindowBuilder, WindowEvent, WindowUrl};
 use thiserror::Error;
 use tokio::sync::oneshot;
+use macro_utils::SerializeError;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct ScreenArea {
@@ -12,7 +13,7 @@ pub struct ScreenArea {
     monitor_position: (i32, i32),
 }
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, SerializeError)]
 pub enum SelectAreaError {
     #[error("The selection was cancelled by the user")]
     Cancelled,
@@ -24,13 +25,6 @@ pub enum SelectAreaError {
     ErrorWhileBuildingWindow(#[source] tauri::Error),
     #[error("Error while getting window position")]
     ErrorWhileGettingWindowPosition(#[source] tauri::Error),
-}
-
-impl Serialize for SelectAreaError {
-    fn serialize<S>(&self, serializer: S) -> Result<<S as serde::Serializer>::Ok, <S as serde::Serializer>::Error> where
-        S: serde::Serializer {
-        serializer.serialize_str(&self.to_string())
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -66,6 +60,7 @@ pub async fn select_area(app_handle: tauri::AppHandle) -> Result<ScreenArea, Sel
             .decorations(false)
             .disable_file_drop_handler()
             .maximized(true)
+            .shadow(false)
             .skip_taskbar(true)
             // We need to set the window position to the monitor position,
             // otherwise the window will be created on the primary monitor
