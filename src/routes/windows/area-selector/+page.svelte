@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { emit } from '@tauri-apps/api/event';
+	import { EyeIcon } from 'lucide-svelte';
 
 	let canvas: HTMLCanvasElement;
 	let context: CanvasRenderingContext2D;
@@ -65,8 +66,9 @@
 </script>
 
 <svelte:window bind:innerWidth={width} bind:innerHeight={height} on:keydown={handleKeyDown} />
+
 <canvas
-	class="w-screen h-screen"
+	class="absolute w-screen h-screen"
 	bind:this={canvas}
 	on:mousedown={onMouseDown}
 	on:mouseup={onMouseUp}
@@ -76,6 +78,13 @@
 	{width}
 	{height}
 />
+<div class="absolute pointer-events-none alert variant-ghost-surface right-2 top-2">
+	<EyeIcon />
+	<div class="alert-message">
+		<div>Drag and drop over an area to select it</div>
+		<div>Press <kbd>Esc</kbd> to cancel</div>
+	</div>
+</div>
 
 <style>
 	:global(body) {
