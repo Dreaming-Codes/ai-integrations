@@ -53,3 +53,20 @@ pub fn display_status(app_handle: tauri::AppHandle, status_window: State<StatusW
 
     Ok(())
 }
+
+#[derive(Error, Debug, SerializeError)]
+pub enum CloseStatusError {
+    #[error("Error while closing window")]
+    ErrorWhileClosingWindow(#[source] tauri::Error),
+    #[error("No window to close")]
+    NoWindow,
+}
+
+#[tauri::command]
+pub fn close_status(status_window: State<StatusWindow>) -> Result<(), CloseStatusError> {
+    let mut status_window_lock = status_window.0.lock().expect("Failed to lock status window");
+
+    status_window_lock.take().map_or(Err(CloseStatusError::NoWindow), |window| {
+        window.close().map_err(CloseStatusError::ErrorWhileClosingWindow)
+    })
+}

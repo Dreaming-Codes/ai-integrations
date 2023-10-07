@@ -27,6 +27,10 @@
 		display_status('other');
 	}
 
+	function close_status() {
+		invoke('close_status');
+	}
+
 	const popupTestStatus: PopupSettings = {
 		// Represents the type of event that opens/closed the popup
 		event: 'click',
@@ -66,6 +70,7 @@
 				<button class="btn variant-filled" on:click={test_success}>Success</button>
 				<button class="btn variant-filled" on:click={test_loading}>Loading</button>
 				<button class="btn variant-filled" on:click={test_other}>Other</button>
+				<button class="btn variant-filled" on:click={close_status}>Close</button>
 			</div>
 		</div>
 	</div>
