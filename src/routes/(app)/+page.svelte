@@ -2,7 +2,9 @@
 	import { invoke } from '@tauri-apps/api';
 
 	function startOCRTest() {
-		invoke('select_area');
+		invoke('select_area').then((res) => {
+			console.log('Select area result: ', res);
+		});
 	}
 </script>
 
