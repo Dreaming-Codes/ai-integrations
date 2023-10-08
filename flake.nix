@@ -9,77 +9,88 @@
   outputs = { self, nixpkgs, chaotic }: let
     system = "x86_64-linux";
     overlayedNixpkgs = import nixpkgs {
-        system = system;
-        overlays = [ chaotic.overlays.default ];
+      system = system;
+      overlays = [ chaotic.overlays.default ];
     };
     pkgs = overlayedNixpkgs.pkgs;
-    in {
-    defaultPackage.${system} = with pkgs; mkShell {
-      buildInputs = [
+
+    # Import the libopenraw definition
+    libopenraw = pkgs.callPackage ./libopenraw.nix {};
+
+  in {
+    defaultPackage.${system} = with pkgs; let
+      commonLibs = [
         stdenv
-        pkg-config
-        dbus
-        openssl_3
-        glib
-        gtk3
-        libsoup
         webkitgtk_4_1
         webkitgtk
-        zlib
         libthai
-        appimagekit
-        curl
-        clang
-        llvmPackages.bintools
-        bun
-        sbclPackages.cl-rsvg2
-        cargo
-        rustc
-        rust-analyzer
-        clippy
+        zlib
+        gtk3
+        cairo
+        gdk-pixbuf
+        glib
+        dbus
+        openssl_3
+        libGL
+        xorg.libX11
+        xorg.libxcb
+        libgpg-error
+        fontconfig
+        freetype
+        harfbuzz
+        fribidi
+        cups
+        colord
+        pango
+        wayland
+        libcanberra-gtk3
         appmenu-gtk3-module
         mesa
         libdrm
         xorg.libSM
         xorg.libICE
+        libopenraw
+        libjpeg8
+        libavif
+        librsvg
+        libjxl
+        libheif
+        libwmf
+        expat
+        libpng
+        p11-kit
+        gmp
+        libtiff
+        libffi
+        util-linux
+        libxml2
+        gnutls
+        libsoup
+        sbclPackages.cl-rsvg2
       ];
 
-      shellHook = ''
-        export LD_LIBRARY_PATH=${lib.makeLibraryPath [
-          stdenv
-          webkitgtk_4_1
-          webkitgtk
-          libthai
-          zlib
-          gtk3
-          cairo
-          gdk-pixbuf
-          glib
-          dbus
-          openssl_3
-          libGL
-          xorg.libX11
-          xorg.libxcb
-          libgpg-error
-          fontconfig
-          freetype
-          harfbuzz
-          fribidi
-          cups
-          colord
-          pango
-          wayland
-          libcanberra-gtk3
-          appmenu-gtk3-module
-          mesa
-          libdrm
-          xorg.libSM
-          xorg.libICE
-        ]}:$LD_LIBRARY_PATH
-        export LD_LIBRARY_PATH=${stdenv.cc.cc.lib}/lib/:$LD_LIBRARY_PATH
-        export WEBKIT_DISABLE_COMPOSITING_MODE=1
-        bun install
-      '';
-    };
+      additionalBuildInputs = [
+        pkg-config
+        appimagekit
+        curl
+        clang
+        llvmPackages.bintools
+        bun
+        rustc
+        cargo
+        clippy
+        rust-analyzer
+      ];
+
+      in mkShell {
+        buildInputs = commonLibs ++ additionalBuildInputs;
+
+        shellHook = ''
+          export LD_LIBRARY_PATH=${lib.makeLibraryPath commonLibs}:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${stdenv.cc.cc.lib}/lib/:$LD_LIBRARY_PATH
+          export WEBKIT_DISABLE_COMPOSITING_MODE=1
+          bun install
+        '';
+      };
   };
 }
