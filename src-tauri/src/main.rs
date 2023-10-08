@@ -3,6 +3,7 @@
 
 mod ocr;
 mod status;
+mod ai;
 
 use ocr::tauri::select_area;
 use status::tauri::display_status;
