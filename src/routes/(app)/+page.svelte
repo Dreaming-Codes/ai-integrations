@@ -2,10 +2,15 @@
 	import { invoke } from '@tauri-apps/api';
 	import { popup } from '@skeletonlabs/skeleton';
 	import type { PopupSettings } from '@skeletonlabs/skeleton';
+	import { getToastStore } from '@skeletonlabs/skeleton';
+
+	const toastStore = getToastStore();
 
 	function startOCRTest() {
-		invoke('select_area').then((res) => {
-			console.log('Select area result: ', res);
+		invoke('do_full_ocr').then((res) => {
+			toastStore.trigger({
+				message: JSON.stringify(res)
+			});
 		});
 	}
 
@@ -60,12 +65,8 @@
 		</figure>
 		<!-- / -->
 		<div class="flex justify-center space-x-2">
-			<button class="btn variant-filled" on:click={startOCRTest} rel="noreferrer">
-				TEST OCR
-			</button>
-			<button class="btn variant-filled" use:popup={popupTestStatus} rel="noreferrer">
-				TEST STATUS
-			</button>
+			<button class="btn variant-filled" on:click={startOCRTest}> TEST OCR </button>
+			<button class="btn variant-filled" use:popup={popupTestStatus}> TEST STATUS </button>
 			<div class="card p-4 variant-filled-secondary" data-popup="popupTestStatus">
 				<button class="btn variant-filled" on:click={test_success}>Success</button>
 				<button class="btn variant-filled" on:click={test_loading}>Loading</button>

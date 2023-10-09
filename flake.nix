@@ -86,8 +86,9 @@
         buildInputs = commonLibs ++ additionalBuildInputs;
 
         shellHook = ''
+          export LD_LIBRARY_PATH=${pkgs.stdenv.cc.cc.lib}/lib/:$LD_LIBRARY_PATH
           export LD_LIBRARY_PATH=${lib.makeLibraryPath commonLibs}:$LD_LIBRARY_PATH
-          export LD_LIBRARY_PATH=${stdenv.cc.cc.lib}/lib/:$LD_LIBRARY_PATH
+
           export WEBKIT_DISABLE_COMPOSITING_MODE=1
           bun install
         '';

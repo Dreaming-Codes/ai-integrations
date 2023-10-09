@@ -1,16 +1,17 @@
 use std::sync::{Arc, Mutex};
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use tauri::{Window, WindowBuilder, WindowEvent, WindowUrl};
 use thiserror::Error;
 use tokio::sync::oneshot;
 use macro_utils::SerializeError;
+use crate::ocr::screenshot::{ScreenshotError, take_screenshot};
+use crate::ocr::tesseract::{scan_text, ScanTextError};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct ScreenArea {
-    start: (u32, u32),
-    size: (u32, u32),
-    monitor_position: (i32, i32),
+    pub start: (u32, u32),
+    pub size: (u32, u32),
+    pub monitor_position: (i32, i32),
 }
 
 #[derive(Error, Debug, SerializeError)]
@@ -39,8 +40,6 @@ struct ScreenAreaResponse {
     end_y: u32,
 }
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tauri::command]
 pub async fn select_area(app_handle: tauri::AppHandle) -> Result<ScreenArea, SelectAreaError> {
     let monitors = app_handle.available_monitors().map_err(SelectAreaError::UnableToGetAvailableMonitors)?;
 
@@ -140,6 +139,27 @@ pub async fn select_area(app_handle: tauri::AppHandle) -> Result<ScreenArea, Sel
         Ok(selection) => selection,
         Err(_) => Err(SelectAreaError::Cancelled), // Receiver error implies that all senders were dropped, so we consider it as cancellation
     }
+}
+
+#[derive(Error, Debug, SerializeError)]
+pub enum DoFullOcrError {
+    #[error("Unable to select area")]
+    SelectArea(#[from] SelectAreaError),
+    #[error("Unable to take screenshot")]
+    TakeScreenshot(#[from] ScreenshotError),
+    #[error("Unable to OCR image")]
+    ParseImage(#[from] ScanTextError)
+}
+
+// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
+#[tauri::command]
+pub async fn do_full_ocr(app_handle: tauri::AppHandle) -> Result<String, DoFullOcrError> {
+    let area = select_area(app_handle).await?;
+    let image = take_screenshot(&area)?;
+
+    let text = scan_text(image.as_bytes(), "eng")?;
+
+    Ok(text)
 }
 
 
