@@ -1,8 +1,12 @@
+use std::io::Cursor;
 use std::sync::{Arc, Mutex};
+use image::codecs::tiff::TiffDecoder;
+use image::{DynamicImage, EncodableLayout};
 use serde::{Deserialize, Serialize};
 use tauri::{Window, WindowBuilder, WindowEvent, WindowUrl};
 use thiserror::Error;
 use tokio::sync::oneshot;
+use tokio::task::spawn_blocking;
 use macro_utils::SerializeError;
 use crate::ocr::screenshot::{ScreenshotError, take_screenshot};
 use crate::ocr::tesseract::{scan_text, ScanTextError};
@@ -152,12 +156,13 @@ pub enum DoFullOcrError {
 }
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tauri::command]
+// Since we are using some blocking functions like take_screenshot and scan_text marking this as async command will force Tauri to run it in a separate thread
+#[tauri::command(async)]
 pub async fn do_full_ocr(app_handle: tauri::AppHandle) -> Result<String, DoFullOcrError> {
     let area = select_area(app_handle).await?;
     let image = take_screenshot(&area)?;
 
-    let text = scan_text(image.as_bytes(), "eng")?;
+    let text = scan_text(&image, "eng").await?;
 
     Ok(text)
 }

@@ -67,13 +67,16 @@
         gnutls
         libsoup
         sbclPackages.cl-rsvg2
+        libclang
+        tesseract
+        leptonica
       ];
 
       additionalBuildInputs = [
         pkg-config
         appimagekit
-        curl
         clang
+        curl
         llvmPackages.bintools
         bun
         rustc
@@ -88,6 +91,7 @@
         shellHook = ''
           export LD_LIBRARY_PATH=${pkgs.stdenv.cc.cc.lib}/lib/:$LD_LIBRARY_PATH
           export LD_LIBRARY_PATH=${lib.makeLibraryPath commonLibs}:$LD_LIBRARY_PATH
+          export LIBCLANG_PATH=${pkgs.libclang.lib}/lib
 
           export WEBKIT_DISABLE_COMPOSITING_MODE=1
           bun install

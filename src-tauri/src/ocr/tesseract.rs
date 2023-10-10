@@ -1,23 +1,28 @@
-use tesseract_native::leptonica_plumbing::PixReadMemError;
-use tesseract_native::tesseract::{InitializeError, Tesseract};
-use tesseract_native::tesseract::tesseract_plumbing::TessBaseApiGetUtf8TextError;
+use std::io::Cursor;
+use image::DynamicImage;
+use tesseract::InitializeError;
+use tesseract::plumbing::leptonica_plumbing::PixReadMemError;
+use tesseract::plumbing::TessBaseApiGetUtf8TextError;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum ScanTextError {
-    #[error("Error while initializing tesseract")]
+    #[error(transparent)]
     InitializeError(#[from] InitializeError),
-    #[error("Error while reading image")]
+    #[error(transparent)]
+    DecodeError(#[from] image::ImageError),
+    #[error(transparent)]
     ImageError(#[from] PixReadMemError),
-    #[error("Error while scanning text")]
-    OCRFailed(#[from] TessBaseApiGetUtf8TextError)
+    #[error(transparent)]
+    TextScanError(#[from] TessBaseApiGetUtf8TextError),
 }
 
-pub fn scan_text(image: &[u8], language: &str) -> Result<String, ScanTextError> {
-    let mut tesseract = Tesseract::new(None, Some(language))?
-        .set_image_from_mem(image)?;
+pub async fn scan_text(image: &DynamicImage, language: &str) -> Result<String, ScanTextError> {
+    let mut decoded_image: Vec<u8> = vec![];
 
-    let text = tesseract.get_text()?;
+    image.write_to(&mut Cursor::new(&mut decoded_image), image::ImageOutputFormat::Tiff)?;
+
+    let text = tesseract::Tesseract::new(None, Some(language))?.set_image_from_mem(decoded_image.as_slice())?.get_text()?.trim().to_string();
 
     Ok(text)
 }
