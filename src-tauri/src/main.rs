@@ -4,6 +4,7 @@
 mod ocr;
 mod status;
 mod ai;
+mod builder;
 
 use ocr::tauri::do_full_ocr;
 use status::tauri::display_status;
