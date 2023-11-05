@@ -1,12 +1,8 @@
-use std::io::Cursor;
 use std::sync::{Arc, Mutex};
-use image::codecs::tiff::TiffDecoder;
-use image::{DynamicImage, EncodableLayout};
 use serde::{Deserialize, Serialize};
 use tauri::{Window, WindowBuilder, WindowEvent, WindowUrl};
 use thiserror::Error;
 use tokio::sync::oneshot;
-use tokio::task::spawn_blocking;
 use macro_utils::SerializeError;
 use crate::ocr::screenshot::{ScreenshotError, take_screenshot};
 use crate::ocr::tesseract::{scan_text, ScanTextError};
@@ -23,7 +19,7 @@ pub enum SelectAreaError {
     #[error("The selection was cancelled by the user")]
     Cancelled,
     #[error("Unable to parse selection from the frontend")]
-    UnableToParseSelection,
+    UnableToParseSelection(#[source] serde_json::Error),
     #[error("Unable to get available monitors")]
     UnableToGetAvailableMonitors(#[source] tauri::Error),
     #[error("Error while building window")]
@@ -113,9 +109,8 @@ pub async fn select_area(app_handle: tauri::AppHandle) -> Result<ScreenArea, Sel
                     return;
                 };
 
-                let area = event.payload().map_or(Err(SelectAreaError::UnableToParseSelection), |payload| {
-                    serde_json::from_str::<ScreenAreaResponse>(&payload).map_err(|_| SelectAreaError::UnableToParseSelection)
-                });
+
+                let area = serde_json::from_str::<ScreenAreaResponse>(&event.payload()).map_err(SelectAreaError::UnableToParseSelection);
 
                 let Ok(area) = area else {
                     send_error(&tx, area.unwrap_err());

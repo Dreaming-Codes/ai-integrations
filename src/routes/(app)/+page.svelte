@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { invoke } from '@tauri-apps/api';
 	import { popup } from '@skeletonlabs/skeleton';
 	import type { PopupSettings } from '@skeletonlabs/skeleton';
 	import { getToastStore } from '@skeletonlabs/skeleton';
+	import { invoke } from '@tauri-apps/api/primitives';
 
 	const toastStore = getToastStore();
 

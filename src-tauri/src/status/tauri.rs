@@ -1,5 +1,5 @@
 use std::sync::{Mutex};
-use tauri::{State, WindowBuilder, WindowUrl};
+use tauri::{Manager, State, WindowBuilder, WindowUrl};
 use thiserror::Error;
 use macro_utils::SerializeError;
 
