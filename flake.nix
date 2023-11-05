@@ -93,7 +93,6 @@
           export LD_LIBRARY_PATH=${lib.makeLibraryPath commonLibs}:$LD_LIBRARY_PATH
           export LIBCLANG_PATH=${pkgs.libclang.lib}/lib
 
-          export WEBKIT_DISABLE_COMPOSITING_MODE=1
           bun install
         '';
       };
