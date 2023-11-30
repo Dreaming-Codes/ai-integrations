@@ -26,6 +26,8 @@ tesseract = "0.15.0"
 arboard = { version = "3.2.1", features = ["wayland-data-control"] }
 once_cell = "1.18.0"
 wasmer = { version = "4.2.3", default-features = false, features = ["sys", "llvm"] }
+hyprland = "0.3.12"
+log = { version = "0.4.20", features = [] }
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
