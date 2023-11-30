@@ -45,7 +45,7 @@ struct ScreenAreaResponse {
 pub async fn select_area(app_handle: tauri::AppHandle) -> Result<ScreenArea, SelectAreaError> {
     // This is already done on app start, but we need to do it again here because the user might have changed the monitor setup
     if crate::hyprland_compat::is_hyprland() {
-        crate::hyprland_compat::set_rules().await?;
+        crate::hyprland_compat::set_area_selector_monitor_dependant_rules().await?;
     }
 
     let monitors = app_handle.available_monitors().map_err(SelectAreaError::UnableToGetAvailableMonitors)?;
