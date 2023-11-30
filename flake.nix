@@ -20,6 +20,7 @@
   in {
     defaultPackage.${system} = with pkgs; let
       commonLibs = [
+        llvmPackages_15.clangUseLLVM
         stdenv
         webkitgtk_4_1
         webkitgtk
