@@ -26,6 +26,8 @@ pub enum SelectAreaError {
     ErrorWhileBuildingWindow(#[source] tauri::Error),
     #[error("Error while getting window title")]
     ErrorWhileGettingWindowTitle(#[source] tauri::Error),
+    #[error("Error while setting hyprland compat rules")]
+    UnableToSetHyprlandRules(#[from] hyprland::shared::HyprError),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -41,6 +43,11 @@ struct ScreenAreaResponse {
 }
 
 pub async fn select_area(app_handle: tauri::AppHandle) -> Result<ScreenArea, SelectAreaError> {
+    // This is already done on app start, but we need to do it again here because the user might have changed the monitor setup
+    if crate::hyprland_compat::is_hyprland() {
+        crate::hyprland_compat::set_rules().await?;
+    }
+
     let monitors = app_handle.available_monitors().map_err(SelectAreaError::UnableToGetAvailableMonitors)?;
 
     // We try to create a window for each monitor to get the selection area if one window creation fails we close all windows and return the error
