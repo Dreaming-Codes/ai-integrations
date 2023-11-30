@@ -11,6 +11,8 @@ use status::tauri::display_status;
 use status::tauri::close_status;
 
 fn main() {
+    std::env::set_var("GDK_BACKEND", "x11");
+    std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
     tauri::Builder::default()
         .manage(status::tauri::StatusWindow::default())
         .invoke_handler(tauri::generate_handler![do_full_ocr, display_status, close_status])
