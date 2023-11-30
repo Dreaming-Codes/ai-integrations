@@ -3,6 +3,7 @@ use hyprland::prelude::HyprData;
 const GENERAL_SELECT_AREA_SELECTOR: &str = "title:^(Select Area)(.*)$";
 
 pub async fn set_rules() -> hyprland::Result<()> {
+    unset_rules().await?;
     let monitors = hyprland::data::Monitors::get_async().await?;
     let tasks = monitors.iter().map(|monitor| {
         let monitor_selector = format!("title:^(Select Area {}x{})(.*)$", monitor.x, monitor.y);
