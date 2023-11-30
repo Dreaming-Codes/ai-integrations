@@ -36,10 +36,10 @@ pub fn is_hyprland() -> bool {
     std::env::var("XDG_CURRENT_DESKTOP") == Ok("Hyprland".to_string())
 }
 
+/// This is an attempt to fix multiple monitors support
 pub async fn set_area_selector_monitor_dependant_rules() -> hyprland::Result<()> {
     let monitors = hyprland::data::Monitors::get_async().await?;
 
-    // This is an attempt to fix multiple monitors support
     for monitor in monitors {
         let monitor_selector = format!("title:Select Area {}x{}", monitor.x, monitor.y);
         hyprland::keyword::Keyword::set_async("windowrulev2", format!("monitor {},{}", monitor.id, monitor_selector)).await?;
