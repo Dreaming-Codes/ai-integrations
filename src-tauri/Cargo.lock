@@ -43,6 +43,7 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "arboard",
+ "futures",
  "hyprland",
  "image",
  "log",

@@ -24,8 +24,8 @@ pub enum SelectAreaError {
     UnableToGetAvailableMonitors(#[source] tauri::Error),
     #[error("Error while building window")]
     ErrorWhileBuildingWindow(#[source] tauri::Error),
-    #[error("Error while getting window position")]
-    ErrorWhileGettingWindowPosition(#[source] tauri::Error),
+    #[error("Error while getting window title")]
+    ErrorWhileGettingWindowTitle(#[source] tauri::Error),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -48,7 +48,7 @@ pub async fn select_area(app_handle: tauri::AppHandle) -> Result<ScreenArea, Sel
     for (index, monitor) in monitors.iter().enumerate() {
         let monitor_position = monitor.position();
         let window_result = WindowBuilder::new(&app_handle, format!("area-selector-{}", index), WindowUrl::App("windows/area-selector".into()))
-            .title("Select Area")
+            .title(format!("Select Area {}x{}", monitor_position.x, monitor_position.y))
             .transparent(true)
             .fullscreen(true)
             .focused(true)
@@ -100,15 +100,21 @@ pub async fn select_area(app_handle: tauri::AppHandle) -> Result<ScreenArea, Sel
             let window = window.clone();
             let tx = tx.clone();
             move |event| {
-                let position = window.inner_position().map_err(SelectAreaError::ErrorWhileGettingWindowPosition);
+                let title = window.title().map_err(SelectAreaError::ErrorWhileGettingWindowTitle);
 
                 close_windows(&windows);
 
-                let Ok(position) = position else {
-                    send_error(&tx, position.unwrap_err());
+                let Ok(title) = title else {
+                    send_error(&tx, title.unwrap_err());
                     return;
                 };
 
+                let monitor_position = title.split(" ").nth(2).and_then(|position| {
+                    let mut position = position.split("x");
+                    let x = position.next().and_then(|x| x.parse::<i32>().ok());
+                    let y = position.next().and_then(|y| y.parse::<i32>().ok());
+                    x.and_then(|x| y.map(|y| (x, y)))
+                }).unwrap_or((0, 0));
 
                 let area = serde_json::from_str::<ScreenAreaResponse>(&event.payload()).map_err(SelectAreaError::UnableToParseSelection);
 
@@ -124,7 +130,7 @@ pub async fn select_area(app_handle: tauri::AppHandle) -> Result<ScreenArea, Sel
                 let height = (area.start_y.max(area.end_y) - y).max(1);
 
                 // Parse the selection from event and send it through the channel
-                let screen_area = ScreenArea { start: (x, y), size: (width, height), monitor_position: (position.x, position.y) };
+                let screen_area = ScreenArea { start: (x, y), size: (width, height), monitor_position };
                 let mut tx = tx.lock().expect("Unable to lock tx");
                 if let Some(tx) = tx.take() {
                     tx.send(Ok(screen_area)).ok();
@@ -155,6 +161,7 @@ pub enum DoFullOcrError {
 #[tauri::command(async)]
 pub async fn do_full_ocr(app_handle: tauri::AppHandle) -> Result<String, DoFullOcrError> {
     let area = select_area(app_handle).await?;
+    println!("Selected area: {:?}", area);
     let image = take_screenshot(&area)?;
 
     let text = scan_text(&image, "eng").await?;
