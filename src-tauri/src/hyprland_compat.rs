@@ -6,8 +6,9 @@ const STATUS_SELECTOR: &str = "title:(Status),class:(ai-integration)";
 pub async fn set_rules() -> hyprland::Result<()> {
     unset_rules().await?;
     let monitors = hyprland::data::Monitors::get_async().await?;
+    // This is an attempt to fix multi monitor support on Hyprland, for some reason doesn't work
     let tasks = monitors.iter().map(|monitor| {
-        let monitor_selector = format!("title:^(Select Area {}x{})(.*)$", monitor.x, monitor.y);
+        let monitor_selector = format!("title:Select Area {}x{}", monitor.x, monitor.y);
 
         hyprland::keyword::Keyword::set_async("windowrulev2", format!("monitor {},{}", monitor.id, monitor_selector))
     });
@@ -51,7 +52,7 @@ pub async fn unset_rules() -> hyprland::Result<()> {
 
     let monitors = hyprland::data::Monitors::get_async().await?;
     let tasks = monitors.iter().map(|monitor| {
-        let monitor_selector = format!("title:^(Select Area {}x{})(.*)$", monitor.x, monitor.y);
+        let monitor_selector = format!("title:Select Area {}x{}", monitor.x, monitor.y);
 
         hyprland::keyword::Keyword::set_async("windowrulev2", format!("unset,{}", monitor_selector))
     });
