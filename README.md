@@ -18,9 +18,9 @@ Plugins can be written using WASM
 TODO
 
 # Branches
-- master: where new features are merged
-- temp-openai: this is a temporary implementation of openai API, it will be removed as soon as the plugin system is ready and replaced with an openai plugin
-- other branches: refer to [CONTRIBUTING.md](./.github/CONTRIBUTING.md)
+- [master](https://github.com/Dreaming-Codes/ai-integrations/tree/master): where new features are merged
+- [temp-openai](https://github.com/Dreaming-Codes/ai-integrations/tree/temp-openai): this is a temporary implementation of openai API (not intended to be merged), it will be removed as soon as the plugin system is ready and replaced with an openai plugin
+- [other branches](https://github.com/Dreaming-Codes/ai-integrations/branches): refer to [CONTRIBUTING.md](./.github/CONTRIBUTING.md)
 
 # Development
 ## Requirements
