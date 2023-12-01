@@ -1,10 +1,9 @@
 [package]
 name = "ai-integration"
 version = "0.0.0"
-description = "A Tauri App"
-authors = ["you"]
-license = ""
-repository = ""
+description = "This software permit you to integrate AI in your mondain pc usage letting you build your own AI shortcuts and commands with a simple-to-use node system"
+authors = ["DreamingCodes"]
+repository = "https://github.com/Dreaming-Codes/ai-integrations"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
