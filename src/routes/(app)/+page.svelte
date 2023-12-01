@@ -52,7 +52,16 @@
 		// Defines which side of your trigger the popup will appear
 		placement: 'top'
 	};
+
+	// When Windows key and D are pressed, log the event
+	function handleKeyDown(event: KeyboardEvent) {
+		if (event.key === 'd' && event.altKey) {
+			startOpenAiTest();
+		}
+	}
 </script>
+
+<svelte:window on:keydown={handleKeyDown} />
 
 <div class="container h-full mx-auto flex justify-center items-center">
 	<div class="space-y-10 text-center flex flex-col items-center">
