@@ -1,5 +1,5 @@
 use async_openai::config::OpenAIConfig;
-use async_openai::types::{ChatCompletionRequestMessage, ChatCompletionRequestMessageContentPart, ChatCompletionRequestMessageContentPartImage, ChatCompletionRequestMessageContentPartText, ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent, CreateChatCompletionRequestArgs, ImageUrl};
+use async_openai::types::{ChatCompletionRequestMessage, ChatCompletionRequestMessageContentPart, ChatCompletionRequestMessageContentPartImage, ChatCompletionRequestMessageContentPartImageArgs, ChatCompletionRequestMessageContentPartText, ChatCompletionRequestMessageContentPartTextArgs, ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageArgs, ChatCompletionRequestUserMessageContent, CreateChatCompletionRequestArgs, ImageUrl};
 use image::DynamicImage;
 use lazy_static::lazy_static;
 use macro_utils::SerializeError;
@@ -24,19 +24,21 @@ pub async fn process_image(image: DynamicImage) -> Result<String, async_openai::
         .messages(
             vec![
                 ChatCompletionRequestMessage::User(
-                    ChatCompletionRequestUserMessage {
-                        content: Some(ChatCompletionRequestUserMessageContent::Array(vec![
-                            ChatCompletionRequestMessageContentPart::Image(ChatCompletionRequestMessageContentPartImage {
-                                image_url: ImageUrl::from(image_to_base64url(image)),
-                                ..Default::default()
-                            }),
-                            ChatCompletionRequestMessageContentPart::Text(ChatCompletionRequestMessageContentPartText {
-                                text: "This is a screenshot of a quiz, reply with the correct answer, I do not need the explanation".to_string(),
-                                ..Default::default()
-                            }),
-                        ])),
-                        ..Default::default()
-                    })
+                    ChatCompletionRequestUserMessageArgs::default()
+                        .content(ChatCompletionRequestUserMessageContent::Array(vec![
+                            ChatCompletionRequestMessageContentPart::Image(
+                                ChatCompletionRequestMessageContentPartImageArgs::default()
+                                    .image_url(ImageUrl::from(image_to_base64url(image)))
+                                    .build()?
+                            ),
+                            ChatCompletionRequestMessageContentPart::Text(
+                                ChatCompletionRequestMessageContentPartTextArgs::default()
+                                    .text("This is a screenshot of a quiz, reply with the correct answer, I do not need the explanation".to_string())
+                                    .build()?
+                            ),
+                        ]))
+                        .build()?
+                )
             ]
         )
         .build()?;
