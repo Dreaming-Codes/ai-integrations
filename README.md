@@ -28,6 +28,7 @@ TODO
 - direnv (optional but recommended)
 ## Run
 Remember to also run your IDE inside the nix flakes shell, otherwise it won't be able to find the dependencies.
+If using IntelliJ or any other JetBrains IDE remember to rerun `direnv allow` in the IDE terminal every time you open the project since there's a bug that prevents it from loading the nix flakes shell automatically when the IDE is started inside a direnv shell.
 ```bash
 # Inside the nix flakes shell (automatically loaded if using direnv)
 bun run tauri dev
