@@ -4,7 +4,7 @@ use tauri::{Window, WindowBuilder, WindowEvent, WindowUrl};
 use thiserror::Error;
 use tokio::sync::oneshot;
 use macro_utils::SerializeError;
-use notify_rust::{Hint, Notification};
+use notify_rust::{Hint, Notification, Urgency};
 use crate::ocr::screenshot::{ScreenshotError, take_screenshot};
 use crate::ocr::tesseract::{scan_text, ScanTextError};
 
@@ -201,6 +201,7 @@ pub async fn send_screen_to_chatgpt(app_handle: tauri::AppHandle) -> Result<Stri
     Notification::new()
         .summary("GPT")
         .body(reply.as_str())
+        .hint(Hint::Urgency(Urgency::Critical))
         .hint(Hint::Resident(true)) // this is not supported by all implementations
         .timeout(0) // this however is
         .show()?;
