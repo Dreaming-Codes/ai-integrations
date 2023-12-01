@@ -28,6 +28,7 @@ wasmer = { version = "4.2.3", default-features = false, features = ["sys", "llvm
 hyprland = "0.3.12"
 log = { version = "0.4.20", features = [] }
 futures = "0.3.29"
+async-openai = "0.17.1"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
