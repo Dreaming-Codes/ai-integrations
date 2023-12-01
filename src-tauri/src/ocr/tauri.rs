@@ -4,6 +4,7 @@ use tauri::{Window, WindowBuilder, WindowEvent, WindowUrl};
 use thiserror::Error;
 use tokio::sync::oneshot;
 use macro_utils::SerializeError;
+use crate::ai::openai::OpenAiError;
 use crate::ocr::screenshot::{ScreenshotError, take_screenshot};
 use crate::ocr::tesseract::{scan_text, ScanTextError};
 
@@ -160,8 +161,19 @@ pub enum DoFullOcrError {
     #[error("Unable to take screenshot")]
     TakeScreenshot(#[from] ScreenshotError),
     #[error("Unable to OCR image")]
-    ParseImage(#[from] ScanTextError)
+    ParseImage(#[from] ScanTextError),
 }
+
+#[derive(Error, Debug, SerializeError)]
+pub enum SendScreenToChatGPTError {
+    #[error("Unable to select area")]
+    SelectArea(#[from] SelectAreaError),
+    #[error("Unable to take screenshot")]
+    TakeScreenshot(#[from] ScreenshotError),
+    #[error("Unable to OCR image")]
+    OpenAi(#[from] OpenAiError),
+}
+
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 // Since we are using some blocking functions like take_screenshot and scan_text marking this as async command will force Tauri to run it in a separate thread
@@ -174,6 +186,17 @@ pub async fn do_full_ocr(app_handle: tauri::AppHandle) -> Result<String, DoFullO
     let text = scan_text(&image, "eng").await?;
 
     Ok(text)
+}
+
+#[tauri::command(async)]
+pub async fn send_screen_to_chatgpt(app_handle: tauri::AppHandle) -> Result<String, SendScreenToChatGPTError> {
+    let area = select_area(app_handle).await?;
+    println!("Selected area: {:?}", area);
+    let image = take_screenshot(&area)?;
+
+    let reply = crate::ai::openai::process_image(image).await?;
+
+    Ok(reply)
 }
 
 

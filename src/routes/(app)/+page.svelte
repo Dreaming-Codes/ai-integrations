@@ -14,6 +14,14 @@
 		});
 	}
 
+	function startOpenAiTest() {
+		invoke('send_screen_to_chatgpt').then((res) => {
+			toastStore.trigger({
+				message: JSON.stringify(res)
+			});
+		});
+	}
+
 	function display_status(status: string) {
 		invoke('display_status', {
 			status
@@ -66,6 +74,7 @@
 		<!-- / -->
 		<div class="flex justify-center space-x-2">
 			<button class="btn variant-filled" on:click={startOCRTest}> TEST OCR </button>
+			<button class="btn variant-filled" on:click={startOpenAiTest}> TEST OpenAi </button>
 			<button class="btn variant-filled" use:popup={popupTestStatus}> TEST STATUS </button>
 			<div class="card p-4 variant-filled-secondary" data-popup="popupTestStatus">
 				<button class="btn variant-filled" on:click={test_success}>Success</button>
@@ -90,7 +99,9 @@
 	.img-bg {
 		@apply absolute z-[-1] rounded-full blur-[50px]
         transition-all transform-gpu will-change-transform isolate;
-		animation: pulse 5s cubic-bezier(0, 0, 0, 0.5) infinite, glow 5s linear infinite;
+		animation:
+			pulse 5s cubic-bezier(0, 0, 0, 0.5) infinite,
+			glow 5s linear infinite;
 	}
 
 	@keyframes glow {
