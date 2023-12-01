@@ -9,6 +9,7 @@ mod hyprland_compat;
 
 use tauri::async_runtime::spawn;
 use ocr::tauri::do_full_ocr;
+use ocr::tauri::send_screen_to_chatgpt;
 use status::tauri::display_status;
 use status::tauri::close_status;
 
@@ -24,7 +25,7 @@ fn main() {
 
     tauri::Builder::default()
         .manage(status::tauri::StatusWindow::default())
-        .invoke_handler(tauri::generate_handler![do_full_ocr, display_status, close_status])
+        .invoke_handler(tauri::generate_handler![do_full_ocr, display_status, close_status, send_screen_to_chatgpt])
         .setup(|app| {
             if hyprland_compat::is_hyprland() {
                 spawn(async {

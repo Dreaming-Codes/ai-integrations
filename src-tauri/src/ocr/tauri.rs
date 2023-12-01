@@ -4,7 +4,6 @@ use tauri::{Window, WindowBuilder, WindowEvent, WindowUrl};
 use thiserror::Error;
 use tokio::sync::oneshot;
 use macro_utils::SerializeError;
-use crate::ai::openai::OpenAiError;
 use crate::ocr::screenshot::{ScreenshotError, take_screenshot};
 use crate::ocr::tesseract::{scan_text, ScanTextError};
 
@@ -170,8 +169,8 @@ pub enum SendScreenToChatGPTError {
     SelectArea(#[from] SelectAreaError),
     #[error("Unable to take screenshot")]
     TakeScreenshot(#[from] ScreenshotError),
-    #[error("Unable to OCR image")]
-    OpenAi(#[from] OpenAiError),
+    #[error("OpenAi returned an error while processing the image: {0}")]
+    OpenAi(#[from] async_openai::error::OpenAIError),
 }
 
 
