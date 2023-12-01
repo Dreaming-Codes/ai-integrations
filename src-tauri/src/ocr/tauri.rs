@@ -4,6 +4,7 @@ use tauri::{Window, WindowBuilder, WindowEvent, WindowUrl};
 use thiserror::Error;
 use tokio::sync::oneshot;
 use macro_utils::SerializeError;
+use notify_rust::{Hint, Notification};
 use crate::ocr::screenshot::{ScreenshotError, take_screenshot};
 use crate::ocr::tesseract::{scan_text, ScanTextError};
 
@@ -171,6 +172,8 @@ pub enum SendScreenToChatGPTError {
     TakeScreenshot(#[from] ScreenshotError),
     #[error("OpenAi returned an error while processing the image: {0}")]
     OpenAi(#[from] async_openai::error::OpenAIError),
+    #[error("Unable to show notification")]
+    UnableToShowNotification(#[from] notify_rust::error::Error),
 }
 
 
@@ -194,6 +197,13 @@ pub async fn send_screen_to_chatgpt(app_handle: tauri::AppHandle) -> Result<Stri
     let image = take_screenshot(&area)?;
 
     let reply = crate::ai::openai::process_image(image).await?;
+
+    Notification::new()
+        .summary("GPT")
+        .body(reply.as_str())
+        .hint(Hint::Resident(true)) // this is not supported by all implementations
+        .timeout(0) // this however is
+        .show()?;
 
     Ok(reply)
 }
