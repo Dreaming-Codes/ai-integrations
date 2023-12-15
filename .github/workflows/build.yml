@@ -20,6 +20,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         if: matrix.os != 'ubuntu-latest'
       - name: Installing bun
+        shell: pwsh
         if: matrix.os == 'windows-latest'
         run: powershell -c "iwr bun.sh/install.ps1|iex" -ExecutionPolicy RemoteSigned
       - name: Install deps using apt
