@@ -21,7 +21,7 @@ jobs:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Enable nix flake
         if: matrix.os == 'ubuntu-latest'
-        run: nix-shell
+        run: nix develop
       - name: Build
         run: bun run tauri build
 
