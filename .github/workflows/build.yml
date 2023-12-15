@@ -19,10 +19,14 @@ jobs:
       - name: Rust setup
         uses: dtolnay/rust-toolchain@stable
         if: matrix.os != 'ubuntu-latest'
-      - uses: oven-sh/setup-bun@v1
-        if: matrix.os != 'ubuntu-latest'
-        with:
-          bun-version: latest
+      - name: Installing bun
+        if: matrix.os == 'windows-latest'
+        run: powershell -c "iwr bun.sh/install.ps1|iex" -ExecutionPolicy RemoteSigned
+      - name: Install deps using apt
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libc6
       - uses: aldoborrero/use-nix-action@v4
         if: matrix.os == 'ubuntu-latest'
         with:
