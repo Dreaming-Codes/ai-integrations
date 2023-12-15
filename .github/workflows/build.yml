@@ -32,7 +32,11 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         with:
           nix_path: nixpkgs=channel:nixos-unstable
+      - name: Install winget
+        if: matrix.os == 'windows-latest'
+        uses: Cyberboss/install-winget@v1
       - name: Install deps using winget
+        if: matrix.os == 'windows-latest'
         run: |
           winget install --id=UB-Mannheim.TesseractOCR  -e
       - name: Rust cache
