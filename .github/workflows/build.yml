@@ -22,7 +22,7 @@ jobs:
       - name: Installing bun
         shell: pwsh
         if: matrix.os == 'windows-latest'
-        run: powershell -c "iwr bun.sh/install.ps1|iex" -ExecutionPolicy RemoteSigned
+        run: iwr bun.sh/install.ps1|iex
       - name: Install deps using apt
         if: matrix.os == 'ubuntu-latest'
         run: |
